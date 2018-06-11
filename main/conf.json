@@ -1,0 +1,10 @@
+{
+	"TcpServer":{
+		"BindPort":"8876",
+		"ReadLimit":5,
+		"WriteLimit":5,
+		"ConnTimeout":10,
+		"ConnCheckInterval":10,
+		"WorkerNum":10
+	}
+}
