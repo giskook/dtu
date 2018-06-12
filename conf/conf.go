@@ -14,8 +14,14 @@ type TcpServer struct {
 	WorkerNum         int
 }
 
+type HttpConf struct {
+	Addr    string
+	TimeOut int
+}
+
 type Conf struct {
 	TcpServer *TcpServer
+	Http      *HttpConf
 }
 
 func ReadConfig(confpath string) (*Conf, error) {

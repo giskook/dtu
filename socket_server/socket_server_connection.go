@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"github.com/gansidui/gotcp"
 	"github.com/giskook/dtu/base"
+	"log"
 	"time"
 )
 
@@ -56,6 +57,7 @@ func (c *Connection) Equal(cc *Connection) bool {
 
 func (c *Connection) Send(p gotcp.Packet) error {
 	if c != nil && c.c != nil {
+		log.Printf("<OUT> %x\n", p.Serialize())
 		return c.c.AsyncWritePacket(p, 0)
 	}
 

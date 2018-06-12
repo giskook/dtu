@@ -36,6 +36,7 @@ func (ss *SocketServer) OnMessage(c *gotcp.Conn, p gotcp.Packet) bool {
 	connection.RecvBuffer.Write(p.Serialize())
 	for {
 		protocol_id, protocol_length := protocol.CheckProtocol(connection.RecvBuffer)
+		log.Printf("%d %d\n", protocol_id, protocol_length)
 		buf := make([]byte, protocol_length)
 		connection.RecvBuffer.Read(buf)
 		if protocol_id != protocol.PROTOCOL_2DSC_REGISTER && connection != nil && connection.status != USER_STATUS_NORMAL {
@@ -49,6 +50,8 @@ func (ss *SocketServer) OnMessage(c *gotcp.Conn, p gotcp.Packet) bool {
 			return true
 		case protocol.PROTOCOL_2DSC_REGISTER:
 			ss.eh_2dsc_register(buf, connection)
+		case protocol.PROTOCOL_2DSC_DATA:
+			ss.eh_2dsc_data(buf)
 		}
 	}
 }

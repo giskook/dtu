@@ -13,16 +13,14 @@ type ToDSCRegisterPkg struct {
 
 func (p *ToDSCRegisterPkg) Serialize() []byte {
 	var writer bytes.Buffer
-	write_header(&writer, PROTOCOL_2DTU_RECEIPT_REGISTER)
-	base.WriteWord(&writer, 0)
-	base.WriteBytes(&writer, p.ID[:])
+	write_header(&writer, PROTOCOL_2DTU_RECEIPT_REGISTER, p.ID[:])
 	write_tail(&writer)
 
 	return writer.Bytes()
 }
 
 func Parse2DSCRegister(p []byte) *ToDSCRegisterPkg {
-	reader, id := parse_header(p)
+	reader, _, id := parse_header(p)
 	ip := base.ReadBytes(reader, 4)
 	port := base.ReadWord(reader)
 

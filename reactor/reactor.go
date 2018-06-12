@@ -4,6 +4,7 @@ import (
 	"github.com/giskook/dtu/base"
 	"github.com/giskook/dtu/conf"
 	"github.com/giskook/dtu/socket_server"
+	"github.com/giskook/dtu/socket_srv"
 	"log"
 )
 
@@ -12,6 +13,7 @@ type Reactor struct {
 	exit chan struct{}
 
 	socket_server *socket_server.SocketServer
+	http_srv      *http_srv.HttpSrv
 }
 
 func NewReactor(conf *conf.Conf) *Reactor {
@@ -19,6 +21,7 @@ func NewReactor(conf *conf.Conf) *Reactor {
 		conf:          conf,
 		exit:          make(chan struct{}),
 		socket_server: socket_server.NewSocketServer(conf),
+		http_srv:      http_srv.NewHttpSrv(conf),
 	}
 }
 
@@ -27,6 +30,8 @@ func (r *Reactor) Start() error {
 	if err != nil {
 		return err
 	}
+
+	r.http_srvt.Start()
 
 	r.shunt()
 

@@ -7,10 +7,11 @@ import (
 )
 
 const (
-	PROTOCOL_MIN_LENGTH uint16 = 22
-	PROTOCOL_MAX_LENGTH uint16 = 1046
-	PROTOCOL_START_FLAG uint8  = 0x7B
-	PROTOCOL_END_FLAG   uint8  = 0x7B
+	PROTOCOL_COMMON_LENGTH uint16 = 16
+	PROTOCOL_MIN_LENGTH    uint16 = 16
+	PROTOCOL_MAX_LENGTH    uint16 = 1046
+	PROTOCOL_START_FLAG    uint8  = 0x7B
+	PROTOCOL_END_FLAG      uint8  = 0x7B
 
 	PROTOCOL_ILLEGAL   uint8 = 0xff
 	PROTOCOL_HALF_PACK uint8 = 0xfe
@@ -36,12 +37,42 @@ const (
 	PROTOCOL_2DTU_SET_PARAMTERS    uint8 = 0x8D
 	PROTOCOL_2DTU_QUERY_LOG        uint8 = 0x8E
 	PROTOCOL_2DTU_UPGRADE          uint8 = 0x8F
+
+	PROTOCOL_2DTU_QUERY_PARAMTERS_ALL     uint8 = 0x00
+	PROTOCOL_2DTU_QUERY_PARAMTERS_CMNET   uint8 = 0x01
+	PROTOCOL_2DTU_QUERY_PARAMTERS_RTU     uint8 = 0x02
+	PROTOCOL_2DTU_QUERY_PARAMTERS_SMS     uint8 = 0x03
+	PROTOCOL_2DTU_QUERY_PARAMTERS_RUNTIME uint8 = 0x04
+	PROTOCOL_2DTU_QUERY_PARAMTERS_SYS     uint8 = 0x05
+	PROTOCOL_2DTU_QUERY_PARAMTERS_IP      uint8 = 0x06
 )
 
-func write_header(writer *bytes.Buffer, cmdid uint8) {
+type TLV struct {
+	Type   uint8
+	Flag   uint8
+	Length uint16
+	Value  []byte
+}
+
+func read_tlv(r *bytes.Reader) *TLV {
+	_type := base.ReadByte(r)
+	_flag := base.ReadByte(r)
+	_length := base.ReadWord(r)
+	_value := base.ReadBytes(r, int(_length))
+
+	return &TLV{
+		Type:   _type,
+		Flag:   _flag,
+		Length: _length,
+		Value:  _value,
+	}
+}
+
+func write_header(writer *bytes.Buffer, cmdid uint8, id []byte) {
 	writer.WriteByte(PROTOCOL_START_FLAG)
 	base.WriteByte(writer, cmdid)
 	base.WriteWord(writer, 0)
+	base.WriteBytes(writer, id)
 }
 
 func write_tail(writer *bytes.Buffer) {
@@ -56,15 +87,16 @@ func write_length(writer *bytes.Buffer) {
 	binary.BigEndian.PutUint16(length_byte, uint16(length))
 }
 
-func parse_header(buffer []byte) (*bytes.Reader, [11]byte) {
+func parse_header(buffer []byte) (*bytes.Reader, uint16, [11]byte) {
 	reader := bytes.NewReader(buffer)
-	reader.Seek(4, 0)
+	reader.Seek(2, 0)
+	length := base.ReadWord(reader)
 	id := base.ReadBytes(reader, 11)
 
 	var result [11]byte
 	copy(result[:], id)
 
-	return reader, result
+	return reader, length, result
 }
 
 func CheckProtocol(buffer *bytes.Buffer) (uint8, int) {
@@ -88,7 +120,7 @@ func CheckProtocol(buffer *bytes.Buffer) (uint8, int) {
 		} else {
 			if buffer.Bytes()[len_in_protocol-1] == PROTOCOL_END_FLAG {
 
-				cmd = buffer.Bytes()[2]
+				cmd = buffer.Bytes()[1]
 				cmd_len = int(len_in_protocol)
 				return cmd, cmd_len
 			} else {
