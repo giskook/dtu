@@ -7,22 +7,25 @@ import (
 	"time"
 )
 
-func (h *HttpSrv) handler_web_user_add(w http.ResponseWriter, r *http.Request) {
+const (
+	HTTP_DTU_ID string = "plc_id"
+)
+
+func (h *HttpSrv) handler_dtu_restart(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if x := recover(); x != nil {
 			EncodeErrResponse(w, base.ERROR_HTTP_INNER_PANIC)
 		}
 	}()
 
+	RecordReq(r)
 	r.ParseForm()
 	defer r.Body.Close()
 
-	id := r.Form.Get(WEB_USER_MODIFY_PARA_ID)
-	alias := r.Form.Get(WEB_USER_MODIFY_PARA_ALIAS)
-	user_type := r.Form.Get(WEB_USER_ADD_PARA_USER_TYPE)
-	if id == "" ||
-		alias == "" ||
-		user_type == "" {
+	id := r.Form.Get(HTTP_DTU_ID)
+	var dtu_id [11]byte
+	copy(dtu_id[:], []byte(id))
+	if id == "" {
 		EncodeErrResponse(w, base.ERROR_HTTP_LACK_PARAMTERS)
 	}
 
@@ -31,16 +34,23 @@ func (h *HttpSrv) handler_web_user_add(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel = context.WithTimeout(ctx, time.Duration(h.conf.Http.TimeOut)*time.Second)
 	defer cancel()
 
-	user_add_result := make(chan *base.DBResult)
-	go h.db.UserAdd(id, alias, id, user_type, user_add_result)
+	result := make(chan base.Proto)
+	h.HttpInOut <- &base.HttpInOut{
+		Req: &base.Restart{
+			Type: base.PROTOCOL_2DTU_REQ_REGISTER,
+			ID:   dtu_id,
+		},
+		Resp: result,
+	}
+
 	select {
 	case <-ctx.Done():
 		EncodeErrResponse(w, base.ERROR_HTTP_TIMEOUT)
-	case result := <-user_add_result:
-		if result.Err != nil {
-			EncodeErrResponse(w, result.Err.(*base.LorawanError))
-			return
+		h.HttpCmdDel <- &base.InnerCmdDel{
+			Type: base.PROTOCOL_2DTU_REQ_REGISTER,
+			ID:   dtu_id,
 		}
+	case <-result:
 		EncodeErrResponse(w, base.ERROR_NONE)
 	}
 }

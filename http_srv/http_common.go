@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/giskook/dtu/base"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
-	"github.com/giskook/lorawan/base"
 )
 
 type GeneralResponse struct {
@@ -17,10 +17,10 @@ type GeneralResponse struct {
 }
 
 var (
-	GRS GeneralResponse = GeneralResponse{Code:base.ERR_NONE_CODE, Desc:base.ERR_NONE_DESC}
+	GRS GeneralResponse = GeneralResponse{Code: base.ERR_NONE_CODE, Desc: base.ERR_NONE_DESC}
 )
 
-func EncodeErrResponse(w http.ResponseWriter, err *base.LorawanError) {
+func EncodeErrResponse(w http.ResponseWriter, err *base.DtuError) {
 	gr := &GeneralResponse{
 		Code: err.Code,
 		Desc: err.Desc(),

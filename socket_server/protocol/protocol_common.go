@@ -72,7 +72,7 @@ func write_header(writer *bytes.Buffer, cmdid uint8, id []byte) {
 	writer.WriteByte(PROTOCOL_START_FLAG)
 	base.WriteByte(writer, cmdid)
 	base.WriteWord(writer, 0)
-	base.WriteBytes(writer, id)
+	base.WriteBytesLength(writer, id, 11)
 }
 
 func write_tail(writer *bytes.Buffer) {

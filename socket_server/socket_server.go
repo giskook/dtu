@@ -11,26 +11,24 @@ import (
 )
 
 type SocketServer struct {
-	conf         *conf.Conf
-	srv          *gotcp.Server
-	cm           *ConnMgr
-	SocketIn     chan *base.SocketData
-	SocketOut    chan []byte
-	SocketLbsOut chan []byte
-	exit         chan struct{}
-	wait_exit    *sync.WaitGroup
-	conn_uuid    uint32
+	conf      *conf.Conf
+	srv       *gotcp.Server
+	cm        *ConnMgr
+	SocketIn  chan base.Proto
+	SocketOut chan base.Proto
+	exit      chan struct{}
+	wait_exit *sync.WaitGroup
+	conn_uuid uint32
 }
 
 func NewSocketServer(conf *conf.Conf) *SocketServer {
 	return &SocketServer{
-		conf:         conf,
-		cm:           NewConnMgr(),
-		SocketIn:     make(chan *base.SocketData),
-		SocketOut:    make(chan []byte),
-		SocketLbsOut: make(chan []byte),
-		exit:         make(chan struct{}),
-		wait_exit:    new(sync.WaitGroup),
+		conf:      conf,
+		cm:        NewConnMgr(),
+		SocketIn:  make(chan base.Proto),
+		SocketOut: make(chan base.Proto),
+		exit:      make(chan struct{}),
+		wait_exit: new(sync.WaitGroup),
 	}
 }
 
@@ -68,7 +66,7 @@ func (ss *SocketServer) Send(id [11]byte, p gotcp.Packet) error {
 		return c.Send(p)
 	}
 
-	return base.ErrTerminalOffline
+	return base.ERROR_DTU_OFFLINE
 
 }
 
@@ -76,7 +74,6 @@ func (ss *SocketServer) Stop() {
 	close(ss.exit)
 	ss.wait_exit.Wait()
 	close(ss.SocketOut)
-	close(ss.SocketLbsOut)
 	close(ss.SocketIn)
 
 	ss.srv.Stop()

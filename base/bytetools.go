@@ -55,6 +55,16 @@ func WriteBytes(writer *bytes.Buffer, bs []byte) {
 	writer.Write(bs)
 }
 
+func WriteBytesLength(writer *bytes.Buffer, bs []byte, length int) {
+	if len(bs) == length {
+		writer.Write(bs)
+	} else {
+		tmp := make([]byte, length, 0)
+		copy(tmp, bs)
+		writer.Write(tmp)
+	}
+}
+
 func WriteWord(writer *bytes.Buffer, word uint16) {
 	word_byte := make([]byte, 2)
 	binary.BigEndian.PutUint16(word_byte, word)

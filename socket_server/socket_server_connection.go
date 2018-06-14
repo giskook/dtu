@@ -61,5 +61,5 @@ func (c *Connection) Send(p gotcp.Packet) error {
 		return c.c.AsyncWritePacket(p, 0)
 	}
 
-	return base.ErrSocketAlreadyNotExist
+	return base.ERROR_DTU_OFFLINE
 }
