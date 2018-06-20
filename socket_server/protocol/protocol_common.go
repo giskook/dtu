@@ -111,7 +111,7 @@ func CheckProtocol(buffer *bytes.Buffer) (uint8, int) {
 		cmd, cmd_len = CheckProtocol(buffer)
 	} else if bufferlen >= PROTOCOL_MIN_LENGTH {
 		len_in_protocol := base.GetWord(buffer.Bytes()[2:4])
-		if len_in_protocol < PROTOCOL_MIN_LENGTH || len_in_protocol > PROTOCOL_MAX_LENGTH {
+		if len_in_protocol > PROTOCOL_MAX_LENGTH {
 			buffer.ReadByte()
 			cmd, cmd_len = CheckProtocol(buffer)
 		}

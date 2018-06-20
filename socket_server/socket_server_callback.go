@@ -13,6 +13,7 @@ func (ss *SocketServer) OnConnect(c *gotcp.Conn) bool {
 		read_limit:  ss.conf.TcpServer.ReadLimit,
 		write_limit: ss.conf.TcpServer.WriteLimit,
 		uuid:        atomic.AddUint32(&ss.conn_uuid, 1),
+		interval:    ss.conf.TcpServer.Interval,
 	})
 
 	c.PutExtraData(connection)
@@ -39,7 +40,7 @@ func (ss *SocketServer) OnMessage(c *gotcp.Conn, p gotcp.Packet) bool {
 		log.Printf("%d %d\n", protocol_id, protocol_length)
 		buf := make([]byte, protocol_length)
 		connection.RecvBuffer.Read(buf)
-		if protocol_id != protocol.PROTOCOL_2DSC_REGISTER && connection != nil && connection.status != USER_STATUS_NORMAL {
+		if protocol_id != protocol.PROTOCOL_2DSC_REGISTER && connection != nil && connection.status < DTU_STATUS_REG {
 			log.Printf("<SWALLOW> %x %x ", connection.ID, buf)
 			return true
 		}
@@ -51,7 +52,7 @@ func (ss *SocketServer) OnMessage(c *gotcp.Conn, p gotcp.Packet) bool {
 		case protocol.PROTOCOL_2DSC_REGISTER:
 			ss.eh_2dsc_register(buf, connection)
 		case protocol.PROTOCOL_2DSC_DATA:
-			ss.eh_2dsc_data(buf)
+			ss.eh_2dsc_data(buf, connection)
 		}
 	}
 }

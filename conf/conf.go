@@ -12,6 +12,7 @@ type TcpServer struct {
 	ConnTimeout       int
 	ConnCheckInterval int
 	WorkerNum         int
+	Interval          int
 }
 
 type HttpConf struct {

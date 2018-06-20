@@ -9,6 +9,7 @@
 		"WriteLimit":600,
 		"ConnTimeout":10,
 		"ConnCheckInterval":10,
-		"WorkerNum":10
+		"WorkerNum":10,
+		"Interval":10
 	}
 }

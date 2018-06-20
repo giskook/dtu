@@ -110,6 +110,15 @@ func ReadBcdString(reader *bytes.Reader, buffer_count uint8) string {
 	return result
 }
 
+func GetBcdString(b []byte) string {
+	var result string = ""
+	for v := range b {
+		result += bcd_table[b[v]]
+	}
+
+	return result
+}
+
 func WriteBcdString(writer *bytes.Buffer, str string) {
 	str_len := len(str)
 	for i := 0; i < str_len/2; i++ {

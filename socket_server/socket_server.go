@@ -61,7 +61,7 @@ func (ss *SocketServer) Start() error {
 
 func (ss *SocketServer) Send(id [11]byte, p gotcp.Packet) error {
 	c := ss.cm.Get(id)
-	if c != nil && c.status == USER_STATUS_NORMAL {
+	if c != nil && c.status >= DTU_STATUS_CNT {
 		c.SetWriteDeadline()
 		return c.Send(p)
 	}
