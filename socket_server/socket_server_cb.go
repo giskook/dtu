@@ -18,7 +18,7 @@ func (ss *SocketServer) eh_2dsc_register(p []byte, c *Connection) {
 		Type: base.PROTOCOL_2DSC_REGISTER,
 		ID:   reg.ID,
 	}
-	//c.meter_get_addr()
+	c.meter_get_addr()
 }
 
 func (ss *SocketServer) eh_2dsc_data(p []byte, c *Connection) {

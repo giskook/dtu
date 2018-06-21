@@ -6,13 +6,13 @@ import (
 )
 
 const (
-	PROTOCOL_METER_MIN_LENGTH    uint8 = 12
-	PROTOCOL_METER_COMMON_LENGTH uint8 = 9
-	PROTOCOL_METER_START_FLAG    uint8 = 0x68
-	PROTOCOL_METER_END_FLAG      uint8 = 0x16
-	PROTOCOL_METER_ILLEGAL       uint8 = 0xff
-	PROTOCOL_METER_HALF_PACK     uint8 = 0xfe
-	PROTOCOL_METER_UNKNOW        uint8 = 0
+	PROTOCOL_METER_MIN_LENGTH           uint8 = 12
+	PROTOCOL_METER_COMMON_HEADER_LENGTH uint8 = 10
+	PROTOCOL_METER_START_FLAG           uint8 = 0x68
+	PROTOCOL_METER_END_FLAG             uint8 = 0x16
+	PROTOCOL_METER_ILLEGAL              uint8 = 0xff
+	PROTOCOL_METER_HALF_PACK            uint8 = 0xfe
+	PROTOCOL_METER_UNKNOW               uint8 = 0
 
 	PROTOCOL_METER_CTRL_CODE_2METER_READ_DATA         uint8 = 0x11
 	PROTOCOL_METER_CTRL_CODE_2DTU_READ_DATA           uint8 = 0x91
@@ -40,7 +40,7 @@ func write_header(w *bytes.Buffer, addr string, ctrl_code uint8) {
 }
 
 func write_tail(w *bytes.Buffer) {
-	w.Bytes()[9] = uint8(w.Len()) - PROTOCOL_METER_COMMON_LENGTH
+	w.Bytes()[9] = uint8(w.Len()) - PROTOCOL_METER_COMMON_HEADER_LENGTH
 	base.WriteByte(w, sum(w.Bytes()))
 	base.WriteByte(w, PROTOCOL_METER_END_FLAG)
 }

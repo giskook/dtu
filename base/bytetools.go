@@ -3,6 +3,7 @@ package base
 import (
 	"bytes"
 	"encoding/binary"
+	"strings"
 	"time"
 )
 
@@ -119,7 +120,8 @@ func GetBcdString(b []byte) string {
 	return result
 }
 
-func WriteBcdString(writer *bytes.Buffer, str string) {
+func WriteBcdString(writer *bytes.Buffer, _str string) {
+	str := strings.ToLower(_str)
 	str_len := len(str)
 	for i := 0; i < str_len/2; i++ {
 		writer.WriteByte(bcd_map[str[i*2:i*2+2]])
