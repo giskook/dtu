@@ -20,9 +20,16 @@ type HttpConf struct {
 	TimeOut int
 }
 
+type ZmqConf struct {
+	TerminalManage2Dps string
+	TerminalManage2Das string
+	TerminalData2Dps   string
+}
+
 type Conf struct {
 	TcpServer *TcpServer
 	Http      *HttpConf
+	Zmq       *ZmqConf
 }
 
 func ReadConfig(confpath string) (*Conf, error) {

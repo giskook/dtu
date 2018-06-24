@@ -11,5 +11,10 @@
 		"ConnCheckInterval":10,
 		"WorkerNum":10,
 		"Interval":10
+	}, 
+	"Zmq":{
+		"TerminalManage2Dps":"tcp://127.0.0.1:1901",
+		"TerminalManage2Das":"tcp://127.0.0.1:1902",
+		"TerminalData2Dps":"tcp://127.0.0.1:1905"
 	}
 }
