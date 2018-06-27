@@ -34,6 +34,13 @@ func ReadDWord(reader *bytes.Reader) uint32 {
 	return binary.BigEndian.Uint32(dword_byte)
 }
 
+func ReadDWordL(reader *bytes.Reader) uint32 {
+	dword_byte := make([]byte, 4)
+	reader.Read(dword_byte)
+
+	return binary.LittleEndian.Uint32(dword_byte)
+}
+
 func ReadQuaWord(reader *bytes.Reader) uint64 {
 	qword_byte := make([]byte, 8)
 	reader.Read(qword_byte)
@@ -80,6 +87,13 @@ func WriteDWord(writer *bytes.Buffer, dword uint32) {
 	writer.Write(dword_byte)
 }
 
+func WriteDWordL(writer *bytes.Buffer, dword uint32) {
+	dword_byte := make([]byte, 4)
+	binary.LittleEndian.PutUint32(dword_byte, dword)
+
+	writer.Write(dword_byte)
+}
+
 func WriteQuaWord(writer *bytes.Buffer, quaword uint64) {
 	quaword_byte := make([]byte, 8)
 	binary.BigEndian.PutUint64(quaword_byte, quaword)
@@ -111,10 +125,59 @@ func ReadBcdString(reader *bytes.Reader, buffer_count uint8) string {
 	return result
 }
 
+func ReadBcdStringRaw(reader *bytes.Reader, buffer_count uint8) ([]byte, string) {
+	bcd_bytes := make([]byte, buffer_count)
+	reader.Read(bcd_bytes)
+
+	var result string = ""
+	for v := range bcd_bytes {
+		result += bcd_table[bcd_bytes[v]]
+	}
+
+	return bcd_bytes, result
+}
+
+func ReadBcdStringR(r *bytes.Reader, buffer_count uint8) string {
+	bcd_bytes := make([]byte, buffer_count)
+	r.Read(bcd_bytes)
+
+	var result string = ""
+	for i := len(bcd_bytes) - 1; i >= 0; i-- {
+		result += bcd_table[bcd_bytes[i]]
+	}
+
+	return result
+}
+
+func ReadBcdStringRawR(r *bytes.Reader, buffer_count uint8) ([]byte, string) {
+	bcd_bytes := make([]byte, buffer_count)
+	r.Read(bcd_bytes)
+
+	var result string = ""
+	for i := len(bcd_bytes) - 1; i >= 0; i-- {
+		result += bcd_table[bcd_bytes[i]]
+	}
+	bcd_r := make([]byte, buffer_count)
+	for j, _ := range bcd_r {
+		bcd_r[j] = bcd_bytes[buffer_count-uint8(j)-1]
+	}
+
+	return bcd_r, result
+}
+
 func GetBcdString(b []byte) string {
 	var result string = ""
 	for v := range b {
 		result += bcd_table[b[v]]
+	}
+
+	return result
+}
+
+func GetBcdStringR(b []byte) string {
+	var result string = ""
+	for i := len(b) - 1; i >= 0; i-- {
+		result += bcd_table[b[i]]
 	}
 
 	return result
@@ -135,4 +198,28 @@ func ReadBcdTime(reader *bytes.Reader) uint64 {
 	_time, _ := time.ParseInLocation("20060102150405", "20"+bcd_time_string, time.Local)
 
 	return uint64(_time.Unix())
+}
+
+func GetBcdStringFix6(src uint64) string {
+	l2 := src % 100
+	l4 := src / 100 % 100
+	l6 := src / 10000 % 100
+	l8 := src / 1000000 % 100
+	l10 := src / 100000000 % 100
+	l12 := src / 10000000000 % 100
+	return bcd_table[l12] + bcd_table[l10] + bcd_table[l8] + bcd_table[l6] + bcd_table[l4] + bcd_table[l2]
+}
+
+var bcd_table_int []uint8 = []uint8{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99}
+
+func GetBytePlus33LFix6(src uint64) []byte {
+	r := make([]byte, 6)
+	r[0] = bcd_table_int[src%100] + 0x33
+	r[1] = bcd_table_int[src/100%100] + 0x33
+	r[2] = bcd_table_int[src/10000%100] + 0x33
+	r[3] = bcd_table_int[src/1000000%100] + 0x33
+	r[4] = bcd_table_int[src/100000000%100] + 0x33
+	r[5] = bcd_table_int[src/10000000000%100] + 0x33
+
+	return r
 }

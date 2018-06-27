@@ -9,5 +9,5 @@ type ToDTUReadDataAddrPkg struct {
 }
 
 func (p *ToDTUReadDataAddrPkg) Parse(b []byte) {
-	p.Addr = base.GetBcdString(b)
+	p.Addr = base.GetBcdStringR(b)
 }

@@ -26,7 +26,7 @@ func NewReactor(conf *conf.Conf) *Reactor {
 		socket_server: socket_server.NewSocketServer(conf),
 		//http_srv:      http_srv.NewHttpSrv(conf),
 		//hm: NewHttpMgr(),
-		zmq_srv: zmq_server.NewZmqServer(conf.Zmq),
+		zmq_srv: zmq_server.NewZmqServer(conf),
 	}
 }
 
@@ -37,6 +37,7 @@ func (r *Reactor) Start() error {
 	}
 
 	//go r.http_srv.Start()
+	r.zmq_srv.Do()
 
 	r.shunt()
 

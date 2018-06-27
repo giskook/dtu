@@ -29,7 +29,7 @@ func (ss *SocketServer) ReadPacket(conn *net.TCPConn) (gotcp.Packet, error) {
 		log.Println("<ERR> peer error\n")
 		return nil, base.ERROR_DTU_CLOSE_CONN
 	}
-	log.Printf("<IN>  %x  %x\n", conn, data[0:length])
+	log.Printf("<IN>  %x %x\n", conn, data[0:length])
 
 	return &Raw{
 		raw: data[0:length],

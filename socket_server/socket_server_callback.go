@@ -17,16 +17,19 @@ func (ss *SocketServer) OnConnect(c *gotcp.Conn) bool {
 	})
 
 	c.PutExtraData(connection)
+	go connection.do()
 	//go connection.Check()
 	log.Printf("<CNT> %x \n", c.GetRawConn())
+	ss.cm.Put(uint64(connection.conf.uuid), connection)
 
 	return true
 }
 
 func (ss *SocketServer) OnClose(c *gotcp.Conn) {
 	connection := c.GetExtraData().(*Connection)
-	ss.cm.Del(connection)
 	connection.Close()
+	ss.cm.Del(uint64(connection.conf.uuid), connection)
+	ss.mcm.Del(connection.MID, connection)
 	log.Printf("<DIS> %x\n", c.GetRawConn())
 	//debug.PrintStack()
 }
@@ -37,11 +40,10 @@ func (ss *SocketServer) OnMessage(c *gotcp.Conn, p gotcp.Packet) bool {
 	connection.RecvBuffer.Write(p.Serialize())
 	for {
 		protocol_id, protocol_length := protocol.CheckProtocol(connection.RecvBuffer)
-		log.Printf("%d %d\n", protocol_id, protocol_length)
 		buf := make([]byte, protocol_length)
 		connection.RecvBuffer.Read(buf)
 		if protocol_id != protocol.PROTOCOL_2DSC_REGISTER && connection != nil && connection.status < DTU_STATUS_REG {
-			log.Printf("<SWALLOW> %x %x ", connection.ID, buf)
+			log.Printf("<SWALLOW> %x %x ", connection.dtu_id, buf)
 			return true
 		}
 		switch protocol_id {

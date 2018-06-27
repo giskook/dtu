@@ -28,3 +28,22 @@ type Restart struct {
 func (c *Restart) Base() (uint8, [11]byte) {
 	return c.Type, c.ID
 }
+
+//////////////////////////////////////////////////////////////////
+
+const (
+	PROTOCOL_METER_2DSC_ELECTRICITY uint32 = 0x00000000
+)
+
+type ToDSCData interface {
+	Base() (uint32, uint64)
+}
+
+type ToDSCDataElectricity struct {
+	Mid         uint64
+	Electricity string
+}
+
+func (e *ToDSCDataElectricity) Base() (uint32, uint64) {
+	return PROTOCOL_METER_2DSC_ELECTRICITY, e.Mid
+}

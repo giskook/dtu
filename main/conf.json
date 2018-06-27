@@ -1,12 +1,13 @@
 {
+	"UUID":"dasm",
 	"Http":{
 		"Addr":":7788",
 		"TimeOut":10
 	},
 	"TcpServer":{
 		"BindPort":"8069",
-		"ReadLimit":600,
-		"WriteLimit":600,
+		"ReadLimit":180,
+		"WriteLimit":180,
 		"ConnTimeout":10,
 		"ConnCheckInterval":10,
 		"WorkerNum":10,

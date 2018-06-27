@@ -11,24 +11,28 @@ import (
 )
 
 type SocketServer struct {
-	conf      *conf.Conf
-	srv       *gotcp.Server
-	cm        *ConnMgr
-	SocketIn  chan base.Proto
-	SocketOut chan base.Proto
-	exit      chan struct{}
-	wait_exit *sync.WaitGroup
-	conn_uuid uint32
+	conf        *conf.Conf
+	srv         *gotcp.Server
+	cm          *ConnMgr
+	mcm         *ConnMgr
+	Socket2das  chan []byte
+	Socket2dps  chan []byte
+	Socket2dpsD chan []byte
+	exit        chan struct{}
+	wait_exit   *sync.WaitGroup
+	conn_uuid   uint32
 }
 
 func NewSocketServer(conf *conf.Conf) *SocketServer {
 	return &SocketServer{
-		conf:      conf,
-		cm:        NewConnMgr(),
-		SocketIn:  make(chan base.Proto),
-		SocketOut: make(chan base.Proto),
-		exit:      make(chan struct{}),
-		wait_exit: new(sync.WaitGroup),
+		conf:        conf,
+		cm:          NewConnMgr(),
+		mcm:         NewConnMgr(),
+		Socket2das:  make(chan []byte),
+		Socket2dps:  make(chan []byte),
+		Socket2dpsD: make(chan []byte),
+		exit:        make(chan struct{}),
+		wait_exit:   new(sync.WaitGroup),
 	}
 }
 
@@ -59,8 +63,8 @@ func (ss *SocketServer) Start() error {
 	return nil
 }
 
-func (ss *SocketServer) Send(id [11]byte, p gotcp.Packet) error {
-	c := ss.cm.Get(id)
+func (ss *SocketServer) Send(id uint64, p gotcp.Packet) error {
+	c := ss.mcm.Get(id)
 	if c != nil && c.status >= DTU_STATUS_CNT {
 		c.SetWriteDeadline()
 		return c.Send(p)
@@ -73,14 +77,15 @@ func (ss *SocketServer) Send(id [11]byte, p gotcp.Packet) error {
 func (ss *SocketServer) Stop() {
 	close(ss.exit)
 	ss.wait_exit.Wait()
-	close(ss.SocketOut)
-	close(ss.SocketIn)
+	close(ss.Socket2dps)
+	close(ss.Socket2das)
+	close(ss.Socket2dpsD)
 
 	ss.srv.Stop()
 }
 
-func (ss *SocketServer) SetStatus(id [11]byte, status uint8) *Connection {
-	c := ss.cm.Get(id)
+func (ss *SocketServer) SetStatus(id uint64, status uint8) *Connection {
+	c := ss.mcm.Get(id)
 	if c != nil {
 		c.status = status
 	}

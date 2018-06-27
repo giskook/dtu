@@ -14,7 +14,7 @@ func (p *ToMeterReadDataPkg) Serialize() []byte {
 	var w bytes.Buffer
 	write_header(&w, p.Addr, PROTOCOL_METER_CTRL_CODE_2METER_READ_DATA)
 	base.WriteByte(&w, 0)
-	base.WriteDWord(&w, p.DataID+PROTOCOL_METER_DATA_SALT_DWORD)
+	base.WriteDWordL(&w, p.DataID+PROTOCOL_METER_DATA_SALT_DWORD)
 	write_tail(&w)
 
 	return w.Bytes()

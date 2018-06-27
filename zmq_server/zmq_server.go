@@ -10,32 +10,37 @@ import (
 type ZmqServer struct {
 	socket_terminal_manage_2dps *zmq.Socket
 	socket_terminal_manage_2das *zmq.Socket
-	ChanSTM2DPS                 chan string
-	ChanSTM2DAS                 chan string
+	ChanSTM2DPS                 chan []byte
+	ChanSTM2DAS                 chan []byte
 
 	socket_terminal_data_2dps *zmq.Socket
-	ChanSTD2DPS               chan string
+	ChanSTD2DPS               chan []byte
 
 	exit chan struct{}
 }
 
-func NewZmqServer(cnf *conf.ZmqConf) *ZmqServer {
+func NewZmqServer(cnf *conf.Conf) *ZmqServer {
 	stm2dps, _ := zmq.NewSocket(zmq.PUSH)
-	err := stm2dps.Connect(cnf.TerminalManage2Dps)
+	err := stm2dps.Connect(cnf.Zmq.TerminalManage2Dps)
 	if err != nil {
 		log.Printf("<ERR> %s\n", err.Error())
 		return nil
 	}
 
 	stm2das, _ := zmq.NewSocket(zmq.SUB)
-	err = stm2dps.Connect(cnf.TerminalManage2Das)
+	err = stm2das.SetSubscribe(cnf.UUID)
+	if err != nil {
+		log.Printf("<ERR> %s\n", err.Error())
+		return nil
+	}
+	err = stm2das.Connect(cnf.Zmq.TerminalManage2Das)
 	if err != nil {
 		log.Printf("<ERR> %s\n", err.Error())
 		return nil
 	}
 
 	std2dps, _ := zmq.NewSocket(zmq.PUSH)
-	err = std2dps.Connect(cnf.TerminalData2Dps)
+	err = std2dps.Connect(cnf.Zmq.TerminalData2Dps)
 	if err != nil {
 		log.Printf("<ERR> %s\n", err.Error())
 		return nil
@@ -44,10 +49,16 @@ func NewZmqServer(cnf *conf.ZmqConf) *ZmqServer {
 	return &ZmqServer{
 		socket_terminal_manage_2dps: stm2dps,
 		socket_terminal_manage_2das: stm2das,
-		ChanSTM2DPS:                 make(chan string),
-		ChanSTM2DAS:                 make(chan string),
+		ChanSTM2DPS:                 make(chan []byte),
+		ChanSTM2DAS:                 make(chan []byte),
 		socket_terminal_data_2dps:   std2dps,
-		ChanSTD2DPS:                 make(chan string),
+		ChanSTD2DPS:                 make(chan []byte),
 		exit:                        make(chan struct{}),
 	}
+}
+
+func (z *ZmqServer) Do() {
+	go z.do_manage_2dps()
+	go z.do_manage_2das()
+	go z.do_data_2dps()
 }

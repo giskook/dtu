@@ -27,6 +27,7 @@ type ZmqConf struct {
 }
 
 type Conf struct {
+	UUID      string
 	TcpServer *TcpServer
 	Http      *HttpConf
 	Zmq       *ZmqConf

@@ -22,9 +22,20 @@ const (
 	PROTOCOL_METER_CTRL_CODE_2METER_READ_ADDR uint8 = 0x13
 	PROTOCOL_METER_CTRL_CODE_2DTU_READ_ADDR   uint8 = 0x93
 
+	PROTOCOL_METER_CTRL_CODE_2METER_WRITE_ADDR uint8 = 0x15
+	PROTOCOL_METER_CTRL_CODE_2DTU_WRITE_ADDR   uint8 = 0x95
+
 	PROTOCOL_METER_DATA_ID_READ_ELECTRICITY uint32 = 0x00000000
 	PROTOCOL_METER_DATA_ID_ADDR             uint32 = 0x04000401
 	PROTOCOL_METER_DATA_ID_NO               uint32 = 0x04000402
+	PROTOCOL_METER_DATA_ID_VA               uint32 = 0x02010100
+	PROTOCOL_METER_DATA_ID_FREEZE_ONE       uint32 = 0x05000101
+	PROTOCOL_METER_DATA_ID_FREEZE_TWO       uint32 = 0x05000102
+	PROTOCOL_METER_DATA_ID_FREEZE_THREE     uint32 = 0x05000103
+	PROTOCOL_METER_DATA_ID_FREEZE_FOUR      uint32 = 0x05000104
+	PROTOCOL_METER_DATA_ID_FREEZE_FIVE      uint32 = 0x05000105
+	PROTOCOL_METER_DATA_ID_FREEZE_SIX       uint32 = 0x05000106
+	PROTOCOL_METER_DATA_ID_FREEZE_SEVEN     uint32 = 0x05000107
 
 	PROTOCOL_METER_ADDR_WILDCARD   string = "AAAAAAAAAAAA"
 	PROTOCOL_METER_DATA_SALT_BYTE  uint8  = 0x33
@@ -92,7 +103,7 @@ type Packet interface {
 func parse(buffer []byte) (string, uint8, []byte) {
 	reader := bytes.NewReader(buffer)
 	reader.Seek(1, 0)
-	addr := base.ReadBcdString(reader, 6)
+	addr := base.ReadBcdStringR(reader, 6)
 	base.ReadByte(reader)
 	ctrl_code := base.ReadByte(reader)
 	length := base.ReadByte(reader)
@@ -102,7 +113,7 @@ func parse(buffer []byte) (string, uint8, []byte) {
 }
 func ParseDataID(buffer []byte) (*bytes.Reader, uint32) {
 	reader := bytes.NewReader(buffer)
-	data_id := base.ReadDWord(reader)
+	data_id := base.ReadDWordL(reader)
 
 	return reader, data_id
 }

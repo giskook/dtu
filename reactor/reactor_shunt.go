@@ -1,7 +1,6 @@
 package reactor
 
 import (
-	"github.com/giskook/dtu/socket_server/protocol"
 	"log"
 )
 
@@ -32,29 +31,31 @@ import (
 //		}
 //	}
 //}
+
+//func (rc *Reactor) CT(t uint8) uint8 {
+//	log.Printf(">>>>>> %d\n", t)
+//	switch t {
+//	case protocol.PROTOCOL_2DSC_REGISTER:
+//		return protocol.PROTOCOL_2DTU_REQ_REGISTER
+//	}
+//
+//	return protocol.PROTOCOL_UNKNOWN
+//}
 func (rc *Reactor) shunt() {
 	defer func() {
-		log.Println("ddddd")
+		log.Println("shunt over")
 	}()
 
 	for {
 		select {
 		case <-rc.exit:
 			return
-		case socket_out := <-rc.socket_server.SocketOut:
-			_type, id := socket_out.Base()
-			log.Println(_type)
-			log.Println(id)
+		case p := <-rc.socket_server.Socket2dps:
+			rc.zmq_srv.ChanSTM2DPS <- p
+		case p := <-rc.zmq_srv.ChanSTM2DAS:
+			rc.socket_server.Socket2das <- p
+		case p := <-rc.socket_server.Socket2dpsD:
+			rc.zmq_srv.ChanSTD2DPS <- p
 		}
 	}
-}
-
-func (rc *Reactor) CT(t uint8) uint8 {
-	log.Printf(">>>>>> %d\n", t)
-	switch t {
-	case protocol.PROTOCOL_2DSC_REGISTER:
-		return protocol.PROTOCOL_2DTU_REQ_REGISTER
-	}
-
-	return protocol.PROTOCOL_UNKNOWN
 }
