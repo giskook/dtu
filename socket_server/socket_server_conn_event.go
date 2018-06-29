@@ -41,16 +41,20 @@ func (c *Connection) meter_send_cmd_read_data(data_id uint32) {
 	c.meter_send_cmd(p)
 }
 
-func (c *Connection) meter_read_electricity() {
-	c.meter_send_cmd_read_data(protocol_meter.PROTOCOL_METER_DATA_ID_READ_ELECTRICITY)
-}
-
 func (c *Connection) meter_read_no() {
 	c.meter_send_cmd_read_data(protocol_meter.PROTOCOL_METER_DATA_ID_NO)
 }
 
+func (c *Connection) meter_read_electricity() {
+	c.meter_send_cmd_read_data(protocol_meter.PROTOCOL_METER_DATA_ID_READ_ELECTRICITY)
+}
+
 func (c *Connection) meter_read_va() {
-	c.meter_send_cmd_read_data(protocol_meter.PROTOCOL_METER_DATA_ID_VA)
+	c.meter_send_cmd_read_data(protocol_meter.PROTOCOL_METER_DATA_ID_V)
+}
+
+func (c *Connection) meter_read_a() {
+	c.meter_send_cmd_read_data(protocol_meter.PROTOCOL_METER_DATA_ID_A)
 }
 
 func (c *Connection) meter_read_freeze_one() {
@@ -79,4 +83,32 @@ func (c *Connection) meter_read_freeze_six() {
 
 func (c *Connection) meter_read_freeze_seven() {
 	c.meter_send_cmd_read_data(protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_SEVEN)
+}
+
+func (c *Connection) meter_read_freeze_one_time() {
+	c.meter_send_cmd_read_data(protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_ONE_TIME)
+}
+
+func (c *Connection) meter_read_freeze_two_time() {
+	c.meter_send_cmd_read_data(protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_TWO_TIME)
+}
+
+func (c *Connection) meter_read_freeze_three_time() {
+	c.meter_send_cmd_read_data(protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_THREE_TIME)
+}
+
+func (c *Connection) meter_read_freeze_four_time() {
+	c.meter_send_cmd_read_data(protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_FOUR_TIME)
+}
+
+func (c *Connection) meter_read_freeze_five_time() {
+	c.meter_send_cmd_read_data(protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_FIVE_TIME)
+}
+
+func (c *Connection) meter_read_freeze_six_time() {
+	c.meter_send_cmd_read_data(protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_SIX_TIME)
+}
+
+func (c *Connection) meter_read_freeze_seven_time() {
+	c.meter_send_cmd_read_data(protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_SEVEN_TIME)
 }

@@ -41,6 +41,7 @@ type Connection struct {
 
 	meter_addr string
 	meter_data map[uint32]*meter
+	ChanMDI    chan uint32
 }
 
 func NewConnection(c *gotcp.Conn, conf *ConnConf) *Connection {
@@ -55,6 +56,16 @@ func NewConnection(c *gotcp.Conn, conf *ConnConf) *Connection {
 		exit:       make(chan struct{}),
 		ticker:     time.NewTicker(time.Duration(conf.interval) * time.Second),
 		meter_data: make(map[uint32]*meter),
+		ChanMDI:    make(chan uint32),
+	}
+}
+
+func (c *Connection) wait() {
+	select {
+	case <-c.ChanMDI:
+		log.Println("<INF> recv end")
+	case <-time.After(3 * time.Second):
+		log.Println("<INF> recv timeout")
 	}
 }
 
@@ -69,30 +80,46 @@ func (c *Connection) do() {
 			return
 		case <-c.ticker.C:
 			if c.status >= DTU_STATUS_METER_REG {
-				log.Println("send elec")
-				c.meter_read_electricity()
-				time.Sleep(1000 * time.Millisecond)
-				log.Println("send feeeze one")
+				c.meter_read_va()
+				c.wait()
+				c.meter_read_a()
+				c.wait()
 				c.meter_read_freeze_one()
-				time.Sleep(1000 * time.Millisecond)
-				log.Println("send feeeze two")
+				c.wait()
 				c.meter_read_freeze_two()
-				time.Sleep(1000 * time.Millisecond)
-				log.Println("send feeeze three")
+				c.wait()
 				c.meter_read_freeze_three()
-				time.Sleep(1000 * time.Millisecond)
-				log.Println("send feeeze four")
+				c.wait()
+				log.Println("4")
 				c.meter_read_freeze_four()
-				time.Sleep(1000 * time.Millisecond)
-				log.Println("send feeeze five")
+				c.wait()
+				log.Println("5")
 				c.meter_read_freeze_five()
-				time.Sleep(1000 * time.Millisecond)
-				log.Println("send feeeze six")
+				c.wait()
+				log.Println("6")
 				c.meter_read_freeze_six()
-				time.Sleep(1000 * time.Millisecond)
-				log.Println("send feeeze seven")
-				c.meter_read_freeze_seven()
-				time.Sleep(1000 * time.Millisecond)
+				c.wait()
+				c.meter_read_freeze_one_time()
+				c.wait()
+				c.meter_read_freeze_two_time()
+				c.wait()
+				c.meter_read_freeze_three_time()
+				c.wait()
+				log.Println("4")
+				c.meter_read_freeze_four_time()
+				c.wait()
+				log.Println("5")
+				c.meter_read_freeze_five_time()
+				c.wait()
+				log.Println("6")
+				c.meter_read_freeze_six_time()
+				c.wait()
+				//log.Println("7")
+				//log.Println("7")
+				//			c.meter_read_freeze_seven()
+				//		c.wait()
+				c.meter_read_electricity()
+				c.wait()
 			}
 		}
 	}
@@ -113,6 +140,7 @@ func (c *Connection) CloseSocket() {
 func (c *Connection) Close() {
 	c.RecvBuffer.Reset()
 	c.ticker.Stop()
+	close(c.ChanMDI)
 	close(c.exit)
 }
 

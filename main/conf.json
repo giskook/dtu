@@ -11,7 +11,7 @@
 		"ConnTimeout":10,
 		"ConnCheckInterval":10,
 		"WorkerNum":10,
-		"Interval":10
+		"Interval":30
 	}, 
 	"Zmq":{
 		"TerminalManage2Dps":"tcp://127.0.0.1:1901",

@@ -1,6 +1,7 @@
 package socket_server
 
 import (
+	"github.com/giskook/dtu/base"
 	"github.com/giskook/dtu/pb"
 	"github.com/giskook/dtu/socket_server/protocol"
 	"github.com/giskook/dtu/socket_server/protocol_meter"
@@ -107,12 +108,21 @@ func (ss *SocketServer) eh_2dsc_data_2dtu_read_data_2dps(d []byte, modbus_addr u
 func (ss *SocketServer) eh_2dsc_data_2dtu_read_data_all(c *Connection) []byte {
 	ms := make([]*Report.Monitor, 0)
 	for i, v := range c.meter_data {
-		ms = append(ms, &Report.Monitor{
-			ModusAddr: i,
-			DataType:  1,
-			DataLen:   2,
-			Data:      v.data,
-		})
+		if len(v.data) == 4 {
+			ms = append(ms, &Report.Monitor{
+				ModusAddr: i,
+				DataType:  1,
+				DataLen:   2,
+				Data:      v.data,
+			})
+		} else {
+			ms = append(ms, &Report.Monitor{
+				ModusAddr: i,
+				DataType:  1,
+				DataLen:   2,
+				Data:      v.data,
+			})
+		}
 	}
 	r := &Report.DataCommand{
 		Uuid: ss.conf.UUID,
@@ -139,66 +149,128 @@ func (ss *SocketServer) eh_2dsc_data_2dtu_read_data(b []byte, c *Connection) {
 		var elec protocol_meter.ToDTUReadDataElectricityPkg
 		elec.Parse(r)
 		c.meter_data[0x0000012c] = &meter{
-			data:      elec.ElecB,
+			data:      base.C2B4(elec.Electricity, 100),
 			timestamp: time.Now().Unix(),
 		}
+		c.ChanMDI <- 0
+		ss.Socket2dpsD <- ss.eh_2dsc_data_2dtu_read_data_all(c)
+		break
+	case protocol_meter.PROTOCOL_METER_DATA_ID_V:
+		var v protocol_meter.ToDTUReadDataVAPkg
+		v.Parse(r)
+		c.meter_data[0x000005dc] = &meter{
+			data:      base.C2B2(v.VA, 10),
+			timestamp: time.Now().Unix(),
+		}
+		c.ChanMDI <- 0
+		break
+	case protocol_meter.PROTOCOL_METER_DATA_ID_A:
+		c.ChanMDI <- 0
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_ONE:
 		var ef protocol_meter.ToDTUReadDataFreezePkg
 		ef.Parse(r)
 		c.meter_data[0x00000258] = &meter{
-			data:      ef.Elec,
+			data:      base.C2B4(ef.Elec, 100),
 			timestamp: time.Now().Unix(),
 		}
+		c.ChanMDI <- 0
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_TWO:
 		var ef protocol_meter.ToDTUReadDataFreezePkg
 		ef.Parse(r)
 		c.meter_data[0x00000320] = &meter{
-			data:      ef.Elec,
+			data:      base.C2B4(ef.Elec, 100),
 			timestamp: time.Now().Unix(),
 		}
+		c.ChanMDI <- 0
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_THREE:
 		var ef protocol_meter.ToDTUReadDataFreezePkg
 		ef.Parse(r)
 		c.meter_data[0x000003e8] = &meter{
-			data:      ef.Elec,
+			data:      base.C2B4(ef.Elec, 100),
 			timestamp: time.Now().Unix(),
 		}
+		c.ChanMDI <- 0
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_FOUR:
 		var ef protocol_meter.ToDTUReadDataFreezePkg
 		ef.Parse(r)
 		c.meter_data[0x000004b0] = &meter{
-			data:      ef.Elec,
+			data:      base.C2B4(ef.Elec, 100),
 			timestamp: time.Now().Unix(),
 		}
+		c.ChanMDI <- 0
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_FIVE:
 		var ef protocol_meter.ToDTUReadDataFreezePkg
 		ef.Parse(r)
 		c.meter_data[0x00000514] = &meter{
-			data:      ef.Elec,
+			data:      base.C2B4(ef.Elec, 100),
 			timestamp: time.Now().Unix(),
 		}
+		c.ChanMDI <- 0
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_SIX:
 		var ef protocol_meter.ToDTUReadDataFreezePkg
 		ef.Parse(r)
 		c.meter_data[0x00000578] = &meter{
-			data:      ef.Elec,
+			data:      base.C2B4(ef.Elec, 100),
 			timestamp: time.Now().Unix(),
 		}
+		c.ChanMDI <- 0
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_SEVEN:
 		var ef protocol_meter.ToDTUReadDataFreezePkg
 		ef.Parse(r)
 		c.meter_data[0x000005dc] = &meter{
-			data:      ef.Elec,
+			data:      base.C2B4(ef.Elec, 100),
 			timestamp: time.Now().Unix(),
 		}
-		ss.Socket2dpsD <- ss.eh_2dsc_data_2dtu_read_data_all(c)
+		c.ChanMDI <- 0
+		break
+	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_ONE_TIME:
+		var ef protocol_meter.ToDTUReadDataFreezeTimePkg
+		ef.Parse(r)
+		log.Println(ef.TimeStamp)
+		c.ChanMDI <- 0
+		break
+	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_TWO_TIME:
+		var ef protocol_meter.ToDTUReadDataFreezeTimePkg
+		ef.Parse(r)
+		log.Println(ef.TimeStamp)
+		c.ChanMDI <- 0
+		break
+	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_THREE_TIME:
+		var ef protocol_meter.ToDTUReadDataFreezeTimePkg
+		ef.Parse(r)
+		log.Println(ef.TimeStamp)
+		c.ChanMDI <- 0
+		break
+	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_FOUR_TIME:
+		var ef protocol_meter.ToDTUReadDataFreezeTimePkg
+		ef.Parse(r)
+		log.Println(ef.TimeStamp)
+		c.ChanMDI <- 0
+		break
+	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_FIVE_TIME:
+		var ef protocol_meter.ToDTUReadDataFreezeTimePkg
+		ef.Parse(r)
+		log.Println(ef.TimeStamp)
+		c.ChanMDI <- 0
+		break
+	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_SIX_TIME:
+		var ef protocol_meter.ToDTUReadDataFreezeTimePkg
+		ef.Parse(r)
+		log.Println(ef.TimeStamp)
+		c.ChanMDI <- 0
+		break
+	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_SEVEN_TIME:
+		var ef protocol_meter.ToDTUReadDataFreezeTimePkg
+		ef.Parse(r)
+		log.Println(ef.TimeStamp)
+		c.ChanMDI <- 0
 		break
 	default:
 		log.Printf("ss eh_2dsc_data_2dtu_read_data uncaught data id %x\n", data_id)

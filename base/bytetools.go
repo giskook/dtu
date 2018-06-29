@@ -3,6 +3,7 @@ package base
 import (
 	"bytes"
 	"encoding/binary"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -222,4 +223,24 @@ func GetBytePlus33LFix6(src uint64) []byte {
 	r[5] = bcd_table_int[src/10000000000%100] + 0x33
 
 	return r
+}
+
+func C2B4(s string, power int) []byte {
+	v, _ := strconv.ParseFloat(s, 32)
+	v10 := uint32(v * float64(power))
+
+	b := make([]byte, 4)
+	binary.LittleEndian.PutUint32(b, v10)
+
+	return b
+}
+
+func C2B2(s string, power int) []byte {
+	v, _ := strconv.ParseFloat(s, 32)
+	v10 := uint16(v * float64(power))
+
+	b := make([]byte, 2)
+	binary.LittleEndian.PutUint16(b, v10)
+
+	return b
 }

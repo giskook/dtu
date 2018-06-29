@@ -7,14 +7,12 @@ import (
 
 type ToDTUReadDataElectricityPkg struct {
 	Electricity string
-	ElecB       []byte
 }
 
 func (p *ToDTUReadDataElectricityPkg) Parse(r *bytes.Reader) {
-	//	decimal := base.ReadBcdStringR(r, 1)
-	//	interger := base.ReadBcdStringR(r, 3)
-	//	p.Electricity = interger + "." + decimal
-	p.ElecB = base.ReadBytes(r, 4)
+	decimal := base.ReadBcdStringR(r, 1)
+	interger := base.ReadBcdStringR(r, 3)
+	p.Electricity = interger + "." + decimal
 }
 
 type ToDTUReadDataNoPkg struct {
@@ -27,17 +25,36 @@ func (p *ToDTUReadDataNoPkg) Parse(r *bytes.Reader) {
 }
 
 type ToDTUReadDataVAPkg struct {
-	VA []byte
+	VA string
 }
 
 func (p *ToDTUReadDataVAPkg) Parse(r *bytes.Reader) {
-	p.VA, _ = base.ReadBcdStringRawR(r, 2)
+	tmp := base.ReadBcdString(r, 2)
+	p.VA = string(tmp[3]) + string(tmp[2]) + string(tmp[1]) + "." + string(tmp[0])
+}
+
+type ToDTUReadDataAPkg struct {
+	A string
+}
+
+func (p *ToDTUReadDataAPkg) Parse(r *bytes.Reader) {
+	tmp := base.ReadBcdString(r, 3)
+	p.A = string(tmp[5]) + string(tmp[4]) + string(tmp[3]) + "." + string(tmp[2]) + string(tmp[1]) + string(tmp[0])
 }
 
 type ToDTUReadDataFreezePkg struct {
-	Elec []byte
+	Elec string
 }
 
 func (p *ToDTUReadDataFreezePkg) Parse(r *bytes.Reader) {
-	p.Elec, _ = base.ReadBcdStringRawR(r, 4)
+	tmp := base.ReadBcdString(r, 4)
+	p.Elec = string(tmp[7]) + string(tmp[6]) + string(tmp[5]) + string(tmp[4]) + string(tmp[3]) + string(tmp[2]) + "." + string(tmp[1]) + string(tmp[0])
+}
+
+type ToDTUReadDataFreezeTimePkg struct {
+	TimeStamp string
+}
+
+func (p *ToDTUReadDataFreezeTimePkg) Parse(r *bytes.Reader) {
+	p.TimeStamp = base.ReadBcdString(r, 5)
 }
