@@ -55,7 +55,6 @@ func (ss *SocketServer) OnMessage(c *gotcp.Conn, p gotcp.Packet) bool {
 		case protocol.PROTOCOL_2DSC_REGISTER:
 			ss.eh_2dsc_register(buf, connection)
 		case protocol.PROTOCOL_2DSC_DATA:
-			log.Println("<INF> OnMessage PROTOCOL_2DSC_DATA")
 			ss.eh_2dsc_data(buf, connection)
 		}
 	}

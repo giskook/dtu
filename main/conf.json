@@ -6,12 +6,12 @@
 	},
 	"TcpServer":{
 		"BindPort":"8069",
-		"ReadLimit":180,
-		"WriteLimit":180,
+		"ReadLimit":300,
+		"WriteLimit":300,
 		"ConnTimeout":10,
 		"ConnCheckInterval":10,
 		"WorkerNum":10,
-		"Interval":30
+		"Interval":180
 	}, 
 	"Zmq":{
 		"TerminalManage2Dps":"tcp://127.0.0.1:1901",
