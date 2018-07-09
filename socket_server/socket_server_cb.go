@@ -247,7 +247,6 @@ func (ss *SocketServer) eh_2dsc_data_2dtu_read_data(b []byte, c *Connection) {
 			data:      base.C2B4(ef.TimeStamp, 1),
 			timestamp: time.Now().Unix(),
 		}
-		log.Println(ef.TimeStamp)
 		c.run(data_id)
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_TWO_TIME:
@@ -257,7 +256,6 @@ func (ss *SocketServer) eh_2dsc_data_2dtu_read_data(b []byte, c *Connection) {
 			data:      base.C2B4(ef.TimeStamp, 1),
 			timestamp: time.Now().Unix(),
 		}
-		log.Println(ef.TimeStamp)
 		c.run(data_id)
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_THREE_TIME:
@@ -267,7 +265,6 @@ func (ss *SocketServer) eh_2dsc_data_2dtu_read_data(b []byte, c *Connection) {
 			data:      base.C2B4(ef.TimeStamp, 1),
 			timestamp: time.Now().Unix(),
 		}
-		log.Println(ef.TimeStamp)
 		c.run(data_id)
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_FOUR_TIME:
@@ -277,7 +274,6 @@ func (ss *SocketServer) eh_2dsc_data_2dtu_read_data(b []byte, c *Connection) {
 			data:      base.C2B4(ef.TimeStamp, 1),
 			timestamp: time.Now().Unix(),
 		}
-		log.Println(ef.TimeStamp)
 		c.run(data_id)
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_FIVE_TIME:
@@ -287,7 +283,6 @@ func (ss *SocketServer) eh_2dsc_data_2dtu_read_data(b []byte, c *Connection) {
 			data:      base.C2B4(ef.TimeStamp, 1),
 			timestamp: time.Now().Unix(),
 		}
-		log.Println(ef.TimeStamp)
 		c.run(data_id)
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_SIX_TIME:
@@ -297,7 +292,6 @@ func (ss *SocketServer) eh_2dsc_data_2dtu_read_data(b []byte, c *Connection) {
 			data:      base.C2B4(ef.TimeStamp, 1),
 			timestamp: time.Now().Unix(),
 		}
-		log.Println(ef.TimeStamp)
 		c.run(data_id)
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_FREEZE_SEVEN_TIME:
@@ -307,7 +301,6 @@ func (ss *SocketServer) eh_2dsc_data_2dtu_read_data(b []byte, c *Connection) {
 			data:      base.C2B4(ef.TimeStamp, 1),
 			timestamp: time.Now().Unix(),
 		}
-		log.Println(ef.TimeStamp)
 		c.run(data_id)
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_COMBINE_ELEC_LAST_ONE, protocol_meter.PROTOCOL_METER_DATA_ID_COMBINE_ELEC_LAST_TWO, protocol_meter.PROTOCOL_METER_DATA_ID_COMBINE_ELEC_LAST_THREE, protocol_meter.PROTOCOL_METER_DATA_ID_POSITIVE_ELEC_LAST_ONE, protocol_meter.PROTOCOL_METER_DATA_ID_POSITIVE_ELEC_LAST_TWO, protocol_meter.PROTOCOL_METER_DATA_ID_POSITIVE_ELEC_LAST_THREE:
@@ -317,22 +310,19 @@ func (ss *SocketServer) eh_2dsc_data_2dtu_read_data(b []byte, c *Connection) {
 			data:      base.C2B4(ts.Elec, 100),
 			timestamp: time.Now().Unix(),
 		}
-		log.Println(ts.Elec)
 		c.run(data_id)
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_YYMMDDWW:
 		var packet protocol_meter.ToDTUReadDataYYMMDDWWPkg
 		packet.Parse(r)
-		log.Println(packet.YYMMDDWW)
 		c.meter_yymmddww = packet.YYMMDDWW
 		c.run(data_id)
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_HHMMSS:
 		var packet protocol_meter.ToDTUReadDataHHMMSSPkg
 		packet.Parse(r)
-		log.Println(packet.HHMMSS)
 		c.meter_data[0x00000fa0] = &meter{
-			data:      base.C2B4(string(c.meter_yymmddww[0:4])+packet.HHMMSS, 1),
+			data:      base.C2B4(c.meter_yymmddww+packet.HHMMSS, 1),
 			timestamp: time.Now().Unix(),
 		}
 		c.run(data_id)
