@@ -98,7 +98,7 @@ func (c *Connection) do() {
 			return
 		case <-c.ticker.C:
 			if c.status >= DTU_STATUS_METER_REG {
-				c.meter_read_va()
+				c.meter_read_electricity()
 				c.meter_read_a()
 				c.meter_read_freeze_one()
 				c.meter_read_freeze_two()
@@ -122,8 +122,7 @@ func (c *Connection) do() {
 				//				c.meter_read_positive_elec_last_three()
 				c.meter_read_yymmddww()
 				c.meter_read_hhmmss()
-
-				c.meter_read_electricity()
+				c.meter_read_va()
 			}
 		}
 	}

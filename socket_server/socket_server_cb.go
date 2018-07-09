@@ -157,7 +157,6 @@ func (ss *SocketServer) eh_2dsc_data_2dtu_read_data(b []byte, c *Connection) {
 			timestamp: time.Now().Unix(),
 		}
 		c.run(data_id)
-		ss.Socket2dpsD <- ss.eh_2dsc_data_2dtu_read_data_all(c)
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_V:
 		var v protocol_meter.ToDTUReadDataVAPkg
@@ -167,12 +166,13 @@ func (ss *SocketServer) eh_2dsc_data_2dtu_read_data(b []byte, c *Connection) {
 			timestamp: time.Now().Unix(),
 		}
 		c.run(data_id)
+		ss.Socket2dpsD <- ss.eh_2dsc_data_2dtu_read_data_all(c)
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_A:
 		var v protocol_meter.ToDTUReadDataAPkg
 		v.Parse(r)
 		c.meter_data[0x00000bb8] = &meter{
-			data:      base.C2B4(v.A, 10),
+			data:      base.C2B4(v.A, 1000),
 			timestamp: time.Now().Unix(),
 		}
 		c.run(data_id)
