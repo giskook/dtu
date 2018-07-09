@@ -24,12 +24,10 @@ func (ss *SocketServer) consumer_worker() {
 				} else {
 					switch command.Type {
 					case Report.ManageCommand_CMT_REP_REGISTER:
+						log.Println("<INF> recv register feedback")
 						if c := ss.cm.Get(command.Paras[0].Npara); c != nil {
-							if c.MID != command.Paras[1].Npara {
-								c.meter_write_addr(command.Paras[1].Npara)
-							} else {
-								c.status = DTU_STATUS_METER_REG
-							}
+							c.MID = command.Paras[1].Npara
+							c.status = DTU_STATUS_METER_REG
 						}
 					}
 				}

@@ -31,8 +31,8 @@ type ToDTUReadDataVAPkg struct {
 }
 
 func (p *ToDTUReadDataVAPkg) Parse(r *bytes.Reader) {
-	tmp := base.ReadBcdString(r, 2)
-	p.VA = string(tmp[3]) + string(tmp[2]) + string(tmp[1]) + "." + string(tmp[0])
+	tmp := base.ReadBcdString(r, 2) // 3412
+	p.VA = string(tmp[2]) + string(tmp[3]) + string(tmp[0]) + "." + string(tmp[1])
 	log.Printf("<INF> VA %s\n", p.VA)
 }
 
@@ -41,8 +41,8 @@ type ToDTUReadDataAPkg struct {
 }
 
 func (p *ToDTUReadDataAPkg) Parse(r *bytes.Reader) {
-	tmp := base.ReadBcdString(r, 3)
-	p.A = string(tmp[5]) + string(tmp[4]) + string(tmp[3]) + "." + string(tmp[2]) + string(tmp[1]) + string(tmp[0])
+	tmp := base.ReadBcdString(r, 3) // 563412
+	p.A = string(tmp[4]) + string(tmp[5]) + string(tmp[2]) + "." + string(tmp[3]) + string(tmp[0]) + string(tmp[1])
 	log.Printf("<INF> A %s\n", p.A)
 }
 
@@ -51,9 +51,9 @@ type ToDTUReadDataFreezePkg struct {
 }
 
 func (p *ToDTUReadDataFreezePkg) Parse(r *bytes.Reader) {
-	tmp := base.ReadBcdString(r, 4)
-	p.Elec = string(tmp[7]) + string(tmp[6]) + string(tmp[5]) + string(tmp[4]) + string(tmp[3]) + string(tmp[2]) + "." + string(tmp[1]) + string(tmp[0])
-	log.Printf("<INF>  F %s\n", p.Elec)
+	tmp := base.ReadBcdString(r, 4) // 78563412
+	p.Elec = string(tmp[6]) + string(tmp[7]) + string(tmp[4]) + string(tmp[5]) + string(tmp[2]) + string(tmp[3]) + "." + string(tmp[0]) + string(tmp[1])
+	log.Printf("<INF> FE %s\n", p.Elec)
 }
 
 type ToDTUReadDataFreezeTimePkg struct {
@@ -62,7 +62,7 @@ type ToDTUReadDataFreezeTimePkg struct {
 
 func (p *ToDTUReadDataFreezeTimePkg) Parse(r *bytes.Reader) {
 	p.TimeStamp = base.ReadBcdString(r, 5)
-	log.Printf("<INF>  FT %s\n", p.TimeStamp)
+	log.Printf("<INF> FT %s\n", p.TimeStamp)
 }
 
 type ToDTUReadDataSettlementPkg struct {
@@ -71,8 +71,8 @@ type ToDTUReadDataSettlementPkg struct {
 
 func (p *ToDTUReadDataSettlementPkg) Parse(r *bytes.Reader) {
 	tmp := base.ReadBcdString(r, 4)
-	p.Elec = string(tmp[7]) + string(tmp[6]) + string(tmp[5]) + string(tmp[4]) + string(tmp[3]) + string(tmp[2]) + "." + string(tmp[1]) + string(tmp[0])
-
+	p.Elec = string(tmp[6]) + string(tmp[7]) + string(tmp[4]) + string(tmp[5]) + string(tmp[2]) + string(tmp[3]) + "." + string(tmp[0]) + string(tmp[1])
+	log.Printf("<INF> MF %s\n", p.Elec)
 }
 
 type ToDTUReadDataYYMMDDWWPkg struct {
@@ -80,9 +80,10 @@ type ToDTUReadDataYYMMDDWWPkg struct {
 }
 
 func (p *ToDTUReadDataYYMMDDWWPkg) Parse(r *bytes.Reader) {
-	tmp := base.ReadBcdString(r, 4)
+	tmp := base.ReadBcdString(r, 4) //00080718
 
-	p.YYMMDDWW = string(tmp[3]) + string(tmp[2]) + string(tmp[1]) + string(tmp[0])
+	p.YYMMDDWW = string(tmp[6]) + string(tmp[7]) + string(tmp[4]) + string(tmp[5]) + string(tmp[2]) + string(tmp[3])
+	log.Printf("<INF> CTY %s\n", p.YYMMDDWW)
 }
 
 type ToDTUReadDataHHMMSSPkg struct {
@@ -90,7 +91,8 @@ type ToDTUReadDataHHMMSSPkg struct {
 }
 
 func (p *ToDTUReadDataHHMMSSPkg) Parse(r *bytes.Reader) {
-	tmp := base.ReadBcdString(r, 4)
+	tmp := base.ReadBcdString(r, 3) // 344322
 
-	p.HHMMSS = string(tmp[2]) + string(tmp[1]) + string(tmp[0])
+	p.HHMMSS = string(tmp[4]) + string(tmp[5]) + string(tmp[2]) + string(tmp[3]) + string(tmp[1]) + string(tmp[0])
+	log.Printf("<INF> CTH %s\n", p.HHMMSS)
 }

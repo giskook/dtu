@@ -146,6 +146,7 @@ func (ss *SocketServer) eh_2dsc_data_2dtu_read_data(b []byte, c *Connection) {
 	case protocol_meter.PROTOCOL_METER_DATA_ID_NO:
 		var e protocol_meter.ToDTUReadDataNoPkg
 		e.Parse(r)
+		log.Println("<INF> register to dps")
 		ss.Socket2dps <- ss.eh_2dsc_data_2dtu_read_data_2dps_register(e.NoB, c)
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_READ_ELECTRICITY:
@@ -161,7 +162,6 @@ func (ss *SocketServer) eh_2dsc_data_2dtu_read_data(b []byte, c *Connection) {
 	case protocol_meter.PROTOCOL_METER_DATA_ID_V:
 		var v protocol_meter.ToDTUReadDataVAPkg
 		v.Parse(r)
-		log.Printf("<INF> eh_2dsc_data_2dtu_read_data %s %x\n", v.VA, base.C2B4(v.VA, 10))
 		c.meter_data[0x000007d0] = &meter{
 			data:      base.C2B4(v.VA, 10),
 			timestamp: time.Now().Unix(),
