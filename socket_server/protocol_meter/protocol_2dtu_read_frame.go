@@ -8,8 +8,11 @@ type ToDTUReadFramePkg struct {
 	Data     []byte
 }
 
-func (p *ToDTUReadFramePkg) Parse(b []byte) {
-	addr, ctrl_code, data := parse(b)
+func (p *ToDTUReadFramePkg) Parse(b []byte) bool {
+	addr, ctrl_code, data, valid := parse(b)
+	if !valid {
+		return false
+	}
 
 	for i, _ := range data {
 		data[i] -= PROTOCOL_METER_DATA_SALT_BYTE
@@ -18,4 +21,6 @@ func (p *ToDTUReadFramePkg) Parse(b []byte) {
 	p.Addr = addr
 	p.CtrlCode = ctrl_code
 	p.Data = data
+
+	return true
 }

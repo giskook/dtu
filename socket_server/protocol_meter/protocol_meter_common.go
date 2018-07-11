@@ -118,7 +118,10 @@ type Packet interface {
 	Serialize() []byte
 }
 
-func parse(buffer []byte) (string, uint8, []byte) {
+func parse(buffer []byte) (string, uint8, []byte, bool) {
+	if !check_frame(buffer) {
+		return "", 0, nil, false
+	}
 	reader := bytes.NewReader(buffer)
 	reader.Seek(1, 0)
 	addr := base.ReadBcdStringR(reader, 6)
@@ -127,8 +130,18 @@ func parse(buffer []byte) (string, uint8, []byte) {
 	length := base.ReadByte(reader)
 	data := base.ReadBytes(reader, int(length))
 
-	return addr, ctrl_code, data
+	return addr, ctrl_code, data, true
 }
+
+func check_frame(b []byte) bool {
+	l := len(b)
+	if b[0] == PROTOCOL_METER_START_FLAG &&
+		b[l-1] == PROTOCOL_METER_END_FLAG {
+		return true
+	}
+	return false
+}
+
 func ParseDataID(buffer []byte) (*bytes.Reader, uint32) {
 	reader := bytes.NewReader(buffer)
 	data_id := base.ReadDWordL(reader)

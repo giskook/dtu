@@ -29,8 +29,21 @@ func (ss *SocketServer) eh_2dsc_register(p []byte, c *Connection) {
 func (ss *SocketServer) eh_2dsc_data(p []byte, c *Connection) {
 	pp := protocol.Parse2DSCData(p)
 	var frame protocol_meter.ToDTUReadFramePkg
-	frame.Parse(pp.Data)
-	log.Printf("<MI>  %x %x ctrl code %d\n", c.c.GetRawConn(), pp.Data, frame.CtrlCode)
+	valid := frame.Parse(pp.Data)
+
+	check_err := func() {
+		c.err_recv_time++
+		if c.err_recv_time >= 4 {
+			c.CloseSocket()
+		}
+	}
+
+	if !valid {
+		check_err()
+		return
+	}
+
+	log.Printf("<MI>  %x %x ctrl code %x addr %s\n", c.c.GetRawConn(), pp.Data, frame.CtrlCode, frame.Addr)
 
 	mid, _ := strconv.ParseUint(frame.Addr, 10, 64)
 	c.MID = mid
@@ -54,11 +67,8 @@ func (ss *SocketServer) eh_2dsc_data(p []byte, c *Connection) {
 
 		break
 	default:
-		log.Printf("<INFO> ss eh_2dsc_data uncaught ctrl code %x\n", frame.CtrlCode)
-		c.err_recv_time++
-		if c.err_recv_time >= 4 {
-			c.CloseSocket()
-		}
+		log.Printf("<INF> ss eh_2dsc_data uncaught ctrl code %x\n", frame.CtrlCode)
+		check_err()
 
 	}
 
@@ -157,6 +167,7 @@ func (ss *SocketServer) eh_2dsc_data_2dtu_read_data(b []byte, c *Connection) {
 			timestamp: time.Now().Unix(),
 		}
 		c.run(data_id)
+		ss.Socket2dpsD <- ss.eh_2dsc_data_2dtu_read_data_all(c)
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_V:
 		var v protocol_meter.ToDTUReadDataVAPkg
@@ -166,7 +177,6 @@ func (ss *SocketServer) eh_2dsc_data_2dtu_read_data(b []byte, c *Connection) {
 			timestamp: time.Now().Unix(),
 		}
 		c.run(data_id)
-		ss.Socket2dpsD <- ss.eh_2dsc_data_2dtu_read_data_all(c)
 		break
 	case protocol_meter.PROTOCOL_METER_DATA_ID_A:
 		var v protocol_meter.ToDTUReadDataAPkg
@@ -321,8 +331,9 @@ func (ss *SocketServer) eh_2dsc_data_2dtu_read_data(b []byte, c *Connection) {
 	case protocol_meter.PROTOCOL_METER_DATA_ID_HHMMSS:
 		var packet protocol_meter.ToDTUReadDataHHMMSSPkg
 		packet.Parse(r)
+		log.Println(c.meter_yymmddww[2:] + packet.HHMMSS[0:4])
 		c.meter_data[0x00000fa0] = &meter{
-			data:      base.C2B4(c.meter_yymmddww+packet.HHMMSS, 1),
+			data:      base.C2B4(c.meter_yymmddww[2:]+packet.HHMMSS[0:4], 1),
 			timestamp: time.Now().Unix(),
 		}
 		c.run(data_id)
